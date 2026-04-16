@@ -38,7 +38,7 @@ function processPrintQueue(queue) {
   const printed = [];
   
   // keep going until there is no jobs left in the queue
-  while (!queue.isEmpty()) {
+    while (!queue.isEmpty()) {
     //dequeue () - removes and returns the job at the front (oldest job first)
     const job = queue.dequeue();
     // save just the filename string, not the whole objects
@@ -49,7 +49,7 @@ function processPrintQueue(queue) {
 }
 
 function totalPages(jobs) {
-    // reduse () walks through every job and accumulates a running total.
+    // reduce () walks through every job and accumulates a running total.
     // 'total' starts at 0, and we add each job's page count to it.
     return jobs.reduce((total, job) => total + job.pages, 0);
 }
@@ -59,14 +59,49 @@ function totalPages(jobs) {
 // ════════════════════════════════════════════
 function hotPotato(players, numPasses) {
   const queue = new Queue();
-  // YOUR CODE HERE
+    
+  // Load all players into the queue in order. 
+  for (const player of players) {
+    queue.enqueue(player);
+  }
+
+  // keep eliminating players until only one remains 
+  while (queue.size > 1) {
+    // "pass the potato" numPasses times.
+    //Each pass moves the front player to the back - simulating passing around the circle
+    for (let i = 0; i < numPasses; i++) {
+        queue.enqueue(queue.dequeue());
+    }
+
+    // After the passes, whoever is now at the front is holding the potato, they're out 
+    queue.dequeue();
+  }
+
+  // The last player left in the queue is the winner
+  return queue.front();
 }
 
 function hotPotatoLog(players, numPasses) {
   const queue = new Queue();
   const eliminated = [];
-  // YOUR CODE HERE
-  // return { winner: ..., eliminated };
+    //Load all players into the queue in order 
+    for (const player of players) {
+        queue.enqueue(player);
+    }
+
+    //Same loop as hotPotato, but this we record who gets eliminated 
+    while (queue.size > 1) {
+        // rotate the queue numPasses times to pass the potato around
+        for (let i = 0; i < numPasses; i++) {
+            queue.enqueue(queue.dequeue());
+        }
+
+        //the player at the front is eliminated - remove them and log their name 
+        eliminated.push(queue.dequeue());
+    }
+
+    //Return both the winner (last one in queue) and the elimation order
+    return { winner: queue.front(), eliminated};
 }
 
 // ════════════════════════════════════════════
@@ -74,7 +109,26 @@ function hotPotatoLog(players, numPasses) {
 // ════════════════════════════════════════════
 function josephus(n, k) {
   const queue = new Queue();
-  // YOUR CODE HERE
+
+    // enqueue positions 1 through n to represent the people standing in a circle 
+    for (let i = 1; i <=n; i++) {
+        queue.enqueue(i);
+    }
+
+    // keep eliminating until one person remains 
+    while (queue.size > 1) {
+        // rotate k-1 times to advance to the k-th person 
+        // we only rotate k-1 because the dequeue on the next line counts as the k-th step
+        for (let i = 0; i < k - 1; i++) {
+            queue.enqueue(queue.dequeue());
+        }
+
+        // the person now at the front is the k-th - elimainate  them 
+        queue.dequeue();
+    }
+
+    // the last remainig position is the survivor 
+    return queue.front();
 }
 
 module.exports = { loadPrintQueue, processPrintQueue, totalPages, hotPotato, hotPotatoLog, josephus };
