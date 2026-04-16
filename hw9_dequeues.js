@@ -41,7 +41,7 @@ function isPalindrome(word) {
 }
 
 function longestPalindrome(words) {
-    //use isPalindrome() to filter the list down to only palidromes
+    //use isPalindrome() to filter the list down to only palindromes
     // then find the one w/ the most characters using reduce().
     //if no palindrome return null
     const palindrome = words.filter(isPalindrome);
@@ -64,19 +64,28 @@ class TaskScheduler {
   addRoutine(task) { this.#deque.addRear(task); }
 
   processNext() {
-    // process the highest-priority tasks (front of the deque.)
+    // process the highest-priority task (front of the deque.)
     // if the deque is empty, return null instead of crashing 
     if (this.#deque.isEmpty()) return null;
     return this.#deque.removeFront();
   }
 
   processLast() {
-    // YOUR CODE HERE
+    // Process the lowest-priority task (rear of the deque).
+    // Useful for deferring the least urgent work.
+    if (this.#deque.isEmpty()) return null;
+    return this.#deque.removeRear();
   }
+
+
 
   processAll() {
     const results = [];
-    // YOUR CODE HERE
+
+    // Keep pulling from the front until every task has been processed.
+    while (!this.#deque.isEmpty()) {
+      results.push(this.#deque.removeFront());
+    }
     return results;
   }
 
@@ -91,7 +100,31 @@ class TaskScheduler {
 function slidingWindowMax(nums, k) {
   const deque = new Deque();
   const result = [];
-  // YOUR CODE HERE
+  for (let i = 0; i < nums.length; i++) {
+
+    // Step 1: Remove indices from the REAR that point to values smaller than
+    // the current number — they can never be the max of any future window,
+    // so keeping them would be wasteful.
+    while (!deque.isEmpty() && nums[deque.peekRear()] < nums[i]) {
+      deque.removeRear();
+    }
+
+    // Step 2: Add the current index to the rear.
+    deque.addRear(i);
+
+    // Step 3: Remove the front index if it has fallen outside the current window.
+    // A window of size k starting at index i covers indices [i - k + 1 .. i].
+    if (deque.peekFront() < i - k + 1) {
+      deque.removeFront();
+    }
+
+    // Step 4: Once we've processed at least k elements, the front of the deque
+    // always holds the index of the maximum value in the current window.
+    if (i >= k - 1) {
+      result.push(nums[deque.peekFront()]);
+    }
+  }
+
   return result;
 }
 
